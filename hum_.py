@@ -1,71 +1,99 @@
-from vpython import box, cylinder, vector, rate, scene
-import math
+from vpython import *
 
-# -------------------------------
-# 1. Create humanoid parts
-# -------------------------------
-# Torso
-torso = box(pos=vector(0,0,1), size=vector(0.3,0.2,0.5), color=vector(0.7,0.7,0.7))
+# ---------------------------
+# Motor Class
+# ---------------------------
+class DCMotor:
+    def __init__(self, name, max_angle=180):
+        self.name = name
+        self.current_angle = 0
+        self.max_angle = max_angle
+        self.failsafe = False
 
-# Head
-head = box(pos=vector(0,0,1.55), size=vector(0.2,0.2,0.2), color=vector(1,0.8,0.6))
+    def move_to(self, target_angle, speed_deg_per_sec):
+        if self.failsafe:
+            return
+        target_angle = max(min(target_angle, self.max_angle), -self.max_angle)
+        step = 1 if target_angle > self.current_angle else -1
+        while self.current_angle != target_angle:
+            self.current_angle += step
+            rate(speed_deg_per_sec*20)
+            yield self.current_angle
 
-# Arms (upper + lower)
-left_arm_upper = cylinder(pos=vector(-0.2,0,1.4), axis=vector(0,-0.3,0), radius=0.05, color=vector(0.8,0.5,0.5))
-right_arm_upper = cylinder(pos=vector(0.2,0,1.4), axis=vector(0,0.3,0), radius=0.05, color=vector(0.8,0.5,0.5))
+    def activate_failsafe(self):
+        self.failsafe = True
+        print(f"[{self.name}] Failsafe activated!")
 
-# Legs (upper + lower simplified as single segment)
-left_leg = cylinder(pos=vector(-0.1,0,0.75), axis=vector(0,0,-0.5), radius=0.06, color=vector(0.3,0.3,0.8))
-right_leg = cylinder(pos=vector(0.1,0,0.75), axis=vector(0,0,-0.5), radius=0.06, color=vector(0.3,0.3,0.8))
+# ---------------------------
+# Humanoid Robot Class
+# ---------------------------
+class HumanoidRobot:
+    def __init__(self):
+        # Body parts
+        self.torso = box(pos=vector(0,1,0), length=0.4, height=0.6, width=0.2, color=color.blue)
+        self.left_arm = box(pos=vector(-0.35,1.2,0), length=0.1, height=0.5, width=0.1, color=color.red)
+        self.right_arm = box(pos=vector(0.35,1.2,0), length=0.1, height=0.5, width=0.1, color=color.red)
+        self.left_leg = box(pos=vector(-0.15,0.2,0), length=0.1, height=0.6, width=0.1, color=color.green)
+        self.right_leg = box(pos=vector(0.15,0.2,0), length=0.1, height=0.6, width=0.1, color=color.green)
+        self.head = sphere(pos=vector(0,1.7,0), radius=0.15, color=color.orange)
 
-# -------------------------------
-# 2. Stage 5: Modular movement functions
-# -------------------------------
-def move_joint(current_angle, target_angle, max_delta):
-    """
-    Moves a joint towards target angle, limited by max_delta per timestep
-    """
-    delta = target_angle - current_angle
-    if abs(delta) > max_delta:
-        delta = math.copysign(max_delta, delta)
-    return current_angle + delta
+        # Motors
+        self.motors = {
+            "left_arm": DCMotor("Left Arm"),
+            "right_arm": DCMotor("Right Arm"),
+            "left_leg": DCMotor("Left Leg"),
+            "right_leg": DCMotor("Right Leg"),
+            "head": DCMotor("Head", max_angle=180)
+        }
 
-# -------------------------------
-# 3. Simulation loop
-# -------------------------------
-t = 0
-dt = 0.02  # seconds per frame
-left_arm_angle = 0
-right_arm_angle = 0
-head_angle = 0
-left_leg_angle = 0
-right_leg_angle = 0
+    def rotate_part(self, part, delta_deg, axis=vector(1,0,0)):
+        part.rotate(angle=radians(delta_deg), axis=axis, origin=part.pos)
 
-while True:
-    rate(50)  # 50 FPS
-    t += dt
+    def walk(self, steps, speed):
+        # Head movement: full range -180 to +180
+        head_direction = 1  # 1 = rotate right, -1 = rotate left
+        head_angle = 0
 
-    # Target positions (sinusoidal)
-    left_arm_target = 0.7 * math.sin(2*math.pi*0.5*t)
-    right_arm_target = -0.7 * math.sin(2*math.pi*0.5*t)
-    head_target = 0.5 * math.sin(2*math.pi*0.2*t)
-    left_leg_target = 0.4 * math.sin(2*math.pi*0.5*t)
-    right_leg_target = -0.4 * math.sin(2*math.pi*0.5*t)
+        for _ in range(steps):
+            # Step 1: Left leg forward, right leg backward, arms opposite
+            for angle in self.motors["left_leg"].move_to(30, speed):
+                self.rotate_part(self.left_leg, 1)
+                self.rotate_part(self.right_leg, -1)
+                self.rotate_part(self.left_arm, -0.5)
+                self.rotate_part(self.right_arm, 0.5)
+                # Rotate head smoothly
+                head_angle += head_direction
+                if head_angle >= 180 or head_angle <= -180:
+                    head_direction *= -1
+                self.head.rotate(angle=radians(head_direction), axis=vector(0,1,0), origin=self.head.pos)
 
-    # Stage 5: move joints safely
-    left_arm_angle = move_joint(left_arm_angle, left_arm_target, 0.03)
-    right_arm_angle = move_joint(right_arm_angle, right_arm_target, 0.03)
-    head_angle = move_joint(head_angle, head_target, 0.02)
-    left_leg_angle = move_joint(left_leg_angle, left_leg_target, 0.03)
-    right_leg_angle = move_joint(right_leg_angle, right_leg_target, 0.03)
+            # Step 2: Switch legs
+            for angle in self.motors["left_leg"].move_to(-30, speed):
+                self.rotate_part(self.left_leg, -1)
+                self.rotate_part(self.right_leg, 1)
+                self.rotate_part(self.left_arm, 0.5)
+                self.rotate_part(self.right_arm, -0.5)
+                # Rotate head smoothly
+                head_angle += head_direction
+                if head_angle >= 180 or head_angle <= -180:
+                    head_direction *= -1
+                self.head.rotate(angle=radians(head_direction), axis=vector(0,1,0), origin=self.head.pos)
 
-    # -------------------------------
-    # Update visualization
-    # -------------------------------
-    left_arm_upper.axis = vector(0, -0.3*math.cos(left_arm_angle), 0.3*math.sin(left_arm_angle))
-    right_arm_upper.axis = vector(0, 0.3*math.cos(right_arm_angle), 0.3*math.sin(right_arm_angle))
+    def emergency_stop(self):
+        print("Emergency stop! Activating failsafe.")
+        for motor in self.motors.values():
+            motor.activate_failsafe()
 
-    head.pos = vector(0, 0, 1.55 + 0.05*math.sin(head_angle))
+# ---------------------------
+# Run Simulation
+# ---------------------------
+scene.background = color.white
+scene.title = "Humanoid Walking Simulation with Head ±180°"
 
-    left_leg.axis = vector(0, 0, -0.5*math.cos(left_leg_angle))
-    right_leg.axis = vector(0, 0, -0.5*math.cos(right_leg_angle))
+robot = HumanoidRobot()
+
+# Animate walking 4 steps with head full rotation
+robot.walk(4, speed=10)
+
+# Trigger emergency stop
+robot.emergency_stop()
