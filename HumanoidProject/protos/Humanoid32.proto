@@ -1,0 +1,204 @@
+#VRML_SIM R2025a utf8
+PROTO Humanoid32 [
+  field SFVec3f translation 0 0 0
+  field SFRotation rotation 0 1 0 0
+
+  # Expose ALL motors to controller
+  hiddenField MFNode motors []
+]
+{
+  Robot {
+    name "Humanoid32"
+    translation IS translation
+    rotation IS rotation
+    controller "humanoid_controller"
+
+    children [
+      Transform {
+        translation 0 0 1.05
+        children [
+
+          # --------------------
+          # Torso
+          # --------------------
+          Solid {
+            name "Torso"
+            children [
+              Shape {
+                appearance PBRAppearance { baseColor 0.8 0.8 0.8 }
+                geometry Box { size 0.30 0.20 0.50 }
+              }
+            ]
+            boundingObject Box { size 0.30 0.20 0.50 }
+            physics Physics { mass 2.5 }
+          }
+
+          # --------------------
+          # Left Arm
+          # --------------------
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 0 1 }
+            device IS motors
+            device [
+              RotationalMotor { name "LShoulder" }
+            ]
+            endPoint Solid {
+              name "LUpperArm"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.8 0.4 0.4 }
+                  geometry Box { size 0.05 0.05 0.30 }
+                }
+              ]
+              boundingObject Box { size 0.05 0.05 0.30 }
+              physics Physics { mass 0.5 }
+            }
+          }
+
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 1 0 }
+            device IS motors
+            device [
+              RotationalMotor { name "LElbow" }
+            ]
+            endPoint Solid {
+              name "LLowerArm"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.8 0.4 0.4 }
+                  geometry Box { size 0.05 0.05 0.25 }
+                }
+              ]
+              boundingObject Box { size 0.05 0.05 0.25 }
+              physics Physics { mass 0.4 }
+            }
+          }
+
+          # --------------------
+          # Right Arm
+          # --------------------
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 0 1 }
+            device IS motors
+            device [
+              RotationalMotor { name "RShoulder" }
+            ]
+            endPoint Solid {
+              name "RUpperArm"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.4 0.4 0.8 }
+                  geometry Box { size 0.05 0.05 0.30 }
+                }
+              ]
+              boundingObject Box { size 0.05 0.05 0.30 }
+              physics Physics { mass 0.5 }
+            }
+          }
+
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 1 0 }
+            device IS motors
+            device [
+              RotationalMotor { name "RElbow" }
+            ]
+            endPoint Solid {
+              name "RLowerArm"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.4 0.4 0.8 }
+                  geometry Box { size 0.05 0.05 0.25 }
+                }
+              ]
+              boundingObject Box { size 0.05 0.05 0.25 }
+              physics Physics { mass 0.4 }
+            }
+          }
+
+          # --------------------
+          # Left Leg
+          # --------------------
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 0 1 }
+            device IS motors
+            device [
+              RotationalMotor { name "LHip" }
+            ]
+            endPoint Solid {
+              name "LUpperLeg"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.4 0.8 0.4 }
+                  geometry Box { size 0.08 0.08 0.40 }
+                }
+              ]
+              boundingObject Box { size 0.08 0.08 0.40 }
+              physics Physics { mass 1.0 }
+            }
+          }
+
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 1 0 }
+            device IS motors
+            device [
+              RotationalMotor { name "LKnee" }
+            ]
+            endPoint Solid {
+              name "LLowerLeg"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.4 0.8 0.4 }
+                  geometry Box { size 0.08 0.08 0.35 }
+                }
+              ]
+              boundingObject Box { size 0.08 0.08 0.35 }
+              physics Physics { mass 0.8 }
+            }
+          }
+
+          # --------------------
+          # Right Leg
+          # --------------------
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 0 1 }
+            device IS motors
+            device [
+              RotationalMotor { name "RHip" }
+            ]
+            endPoint Solid {
+              name "RUpperLeg"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.4 0.8 0.8 }
+                  geometry Box { size 0.08 0.08 0.40 }
+                }
+              ]
+              boundingObject Box { size 0.08 0.08 0.40 }
+              physics Physics { mass 1.0 }
+            }
+          }
+
+          HingeJoint {
+            jointParameters HingeJointParameters { axis 0 1 0 }
+            device IS motors
+            device [
+              RotationalMotor { name "RKnee" }
+            ]
+            endPoint Solid {
+              name "RLowerLeg"
+              children [
+                Shape {
+                  appearance PBRAppearance { baseColor 0.4 0.8 0.8 }
+                  geometry Box { size 0.08 0.08 0.35 }
+                }
+              ]
+              boundingObject Box { size 0.08 0.08 0.35 }
+              physics Physics { mass 0.8 }
+            }
+          }
+
+        ]
+      }
+    ]
+  }
+}

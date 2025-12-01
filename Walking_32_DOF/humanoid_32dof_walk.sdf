@@ -1,0 +1,371 @@
+<sdf version="1.7">
+  <world name="humanoid_walk_demo_world">
+
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <model name="humanoid_walk_demo">
+      <pose>0 0 1 0 0 0</pose>
+      <static>false</static>
+
+      <!-- ========== ROOT / TORSO / HEAD ========== -->
+      <link name="pelvis">
+        <gravity>0</gravity>
+        <inertial><mass>4</mass></inertial>
+        <visual name="pelvis_vis">
+          <geometry><box><size>0.3 0.2 0.2</size></box></geometry>
+          <material><ambient>0.3 0.3 0.9 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="torso">
+        <pose>0 0 0.25 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>6</mass></inertial>
+        <visual name="torso_vis">
+          <geometry><box><size>0.35 0.25 0.5</size></box></geometry>
+          <material><ambient>0.2 0.2 0.8 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="head">
+        <pose>0 0 0.65 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>2</mass></inertial>
+        <visual name="head_vis">
+          <geometry><box><size>0.2 0.2 0.25</size></box></geometry>
+          <material><ambient>0.9 0.8 0.4 1</ambient></material>
+        </visual>
+      </link>
+
+      <joint name="spine_pitch" type="revolute">
+        <parent>pelvis</parent><child>torso</child>
+        <pose>0 0 0.1 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.3</lower>
+            <upper>0.3</upper>
+            <effort>1000</effort>
+          </limit>
+          <dynamics><damping>0.5</damping></dynamics>
+        </axis>
+      </joint>
+
+      <joint name="neck_yaw" type="revolute">
+        <parent>torso</parent><child>head</child>
+        <pose>0 0 0.5 0 0 0</pose>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-0.4</lower>
+            <upper>0.4</upper>
+            <effort>500</effort>
+          </limit>
+          <dynamics><damping>0.3</damping></dynamics>
+        </axis>
+      </joint>
+
+      <!-- ========== ARMS ========== -->
+      <!-- Right arm -->
+      <link name="r_upper_arm">
+        <pose>0 -0.3 0.35 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>1.5</mass></inertial>
+        <visual name="r_upper_arm_vis">
+          <geometry><box><size>0.08 0.08 0.3</size></box></geometry>
+          <material><ambient>0.8 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="r_lower_arm">
+        <pose>0 -0.3 0.15 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>1.0</mass></inertial>
+        <visual name="r_lower_arm_vis">
+          <geometry><box><size>0.07 0.07 0.25</size></box></geometry>
+          <material><ambient>0.8 0.5 0.2 1</ambient></material>
+        </visual>
+      </link>
+
+      <joint name="r_shoulder" type="revolute">
+        <parent>torso</parent><child>r_upper_arm</child>
+        <pose>0 -0.2 0.4 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.8</lower>
+            <upper>0.8</upper>
+            <effort>800</effort>
+          </limit>
+          <dynamics><damping>0.4</damping></dynamics>
+        </axis>
+      </joint>
+
+      <joint name="r_elbow" type="revolute">
+        <parent>r_upper_arm</parent><child>r_lower_arm</child>
+        <pose>0 -0.3 0.2 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>1.8</upper>
+            <effort>600</effort>
+          </limit>
+          <dynamics><damping>0.3</damping></dynamics>
+        </axis>
+      </joint>
+
+      <!-- Left arm -->
+      <link name="l_upper_arm">
+        <pose>0 0.3 0.35 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>1.5</mass></inertial>
+        <visual name="l_upper_arm_vis">
+          <geometry><box><size>0.08 0.08 0.3</size></box></geometry>
+          <material><ambient>0.2 0.8 0.2 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="l_lower_arm">
+        <pose>0 0.3 0.15 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>1.0</mass></inertial>
+        <visual name="l_lower_arm_vis">
+          <geometry><box><size>0.07 0.07 0.25</size></box></geometry>
+          <material><ambient>0.4 0.8 0.2 1</ambient></material>
+        </visual>
+      </link>
+
+      <joint name="l_shoulder" type="revolute">
+        <parent>torso</parent><child>l_upper_arm</child>
+        <pose>0 0.2 0.4 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.8</lower>
+            <upper>0.8</upper>
+            <effort>800</effort>
+          </limit>
+          <dynamics><damping>0.4</damping></dynamics>
+        </axis>
+      </joint>
+
+      <joint name="l_elbow" type="revolute">
+        <parent>l_upper_arm</parent><child>l_lower_arm</child>
+        <pose>0 0.3 0.2 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>1.8</upper>
+            <effort>600</effort>
+          </limit>
+          <dynamics><damping>0.3</damping></dynamics>
+        </axis>
+      </joint>
+
+      <!-- ========== LEGS ========== -->
+      <!-- Right leg -->
+      <link name="r_upper_leg">
+        <pose>0 -0.12 -0.2 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>3</mass></inertial>
+        <visual name="r_upper_leg_vis">
+          <geometry><box><size>0.10 0.10 0.35</size></box></geometry>
+          <material><ambient>0.2 0.6 0.9 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="r_lower_leg">
+        <pose>0 -0.12 -0.5 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>2</mass></inertial>
+        <visual name="r_lower_leg_vis">
+          <geometry><box><size>0.08 0.08 0.3</size></box></geometry>
+          <material><ambient>0.2 0.8 0.8 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="r_foot">
+        <pose>0 -0.12 -0.75 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>1</mass></inertial>
+        <visual name="r_foot_vis">
+          <geometry><box><size>0.20 0.10 0.05</size></box></geometry>
+          <material><ambient>0.3 0.3 0.3 1</ambient></material>
+        </visual>
+      </link>
+
+      <joint name="r_hip" type="revolute">
+        <parent>pelvis</parent><child>r_upper_leg</child>
+        <pose>0 -0.12 -0.05 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.6</lower>
+            <upper>0.6</upper>
+            <effort>1200</effort>
+          </limit>
+          <dynamics><damping>0.5</damping></dynamics>
+        </axis>
+      </joint>
+
+      <joint name="r_knee" type="revolute">
+        <parent>r_upper_leg</parent><child>r_lower_leg</child>
+        <pose>0 -0.12 -0.4 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>1.8</upper>
+            <effort>1200</effort>
+          </limit>
+          <dynamics><damping>0.4</damping></dynamics>
+        </axis>
+      </joint>
+
+      <joint name="r_ankle" type="revolute">
+        <parent>r_lower_leg</parent><child>r_foot</child>
+        <pose>0 -0.12 -0.7 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.4</lower>
+            <upper>0.4</upper>
+            <effort>800</effort>
+          </limit>
+          <dynamics><damping>0.3</damping></dynamics>
+        </axis>
+      </joint>
+
+      <!-- Left leg -->
+      <link name="l_upper_leg">
+        <pose>0 0.12 -0.2 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>3</mass></inertial>
+        <visual name="l_upper_leg_vis">
+          <geometry><box><size>0.10 0.10 0.35</size></box></geometry>
+          <material><ambient>0.2 0.9 0.6 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="l_lower_leg">
+        <pose>0 0.12 -0.5 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>2</mass></inertial>
+        <visual name="l_lower_leg_vis">
+          <geometry><box><size>0.08 0.08 0.3</size></box></geometry>
+          <material><ambient>0.2 0.8 0.8 1</ambient></material>
+        </visual>
+      </link>
+
+      <link name="l_foot">
+        <pose>0 0.12 -0.75 0 0 0</pose>
+        <gravity>0</gravity>
+        <inertial><mass>1</mass></inertial>
+        <visual name="l_foot_vis">
+          <geometry><box><size>0.20 0.10 0.05</size></box></geometry>
+          <material><ambient>0.3 0.3 0.3 1</ambient></material>
+        </visual>
+      </link>
+
+      <joint name="l_hip" type="revolute">
+        <parent>pelvis</parent><child>l_upper_leg</child>
+        <pose>0 0.12 -0.05 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.6</lower>
+            <upper>0.6</upper>
+            <effort>1200</effort>
+          </limit>
+          <dynamics><damping>0.5</damping></dynamics>
+        </axis>
+      </joint>
+
+      <joint name="l_knee" type="revolute">
+        <parent>l_upper_leg</parent><child>l_lower_leg</child>
+        <pose>0 0.12 -0.4 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>1.8</upper>
+            <effort>1200</effort>
+          </limit>
+          <dynamics><damping>0.4</damping></dynamics>
+        </axis>
+      </joint>
+
+      <joint name="l_ankle" type="revolute">
+        <parent>l_lower_leg</parent><child>l_foot</child>
+        <pose>0 0.12 -0.7 0 0 0</pose>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.4</lower>
+            <upper>0.4</upper>
+            <effort>800</effort>
+          </limit>
+          <dynamics><damping>0.3</damping></dynamics>
+        </axis>
+      </joint>
+
+      <!-- ===== CONTROLLERS (reduced velocities) ===== -->
+      <!-- legs -->
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>r_hip</joint_name>
+        <initial_velocity>0.15</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>l_hip</joint_name>
+        <initial_velocity>-0.15</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>r_knee</joint_name>
+        <initial_velocity>0.20</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>l_knee</joint_name>
+        <initial_velocity>-0.20</initial_velocity>
+      </plugin>
+
+      <!-- arms -->
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>r_shoulder</joint_name>
+        <initial_velocity>-0.12</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>l_shoulder</joint_name>
+        <initial_velocity>0.12</initial_velocity>
+      </plugin>
+
+      <!-- torso & head -->
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>spine_pitch</joint_name>
+        <initial_velocity>0.05</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-controller-system"
+              name="gz::sim::systems::JointController">
+        <joint_name>neck_yaw</joint_name>
+        <initial_velocity>0.04</initial_velocity>
+      </plugin>
+
+    </model>
+
+  </world>
+</sdf>
