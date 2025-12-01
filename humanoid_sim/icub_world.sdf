@@ -1,0 +1,57 @@
+<sdf version="1.7">
+  <world name="icub_world">
+
+    <!-- Gravity -->
+    <gravity>0 0 -9.81</gravity>
+
+    <!-- Simple ground plane model (no external models needed) -->
+    <model name="custom_ground">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="ground_link">
+        <collision name="ground_collision">
+          <geometry>
+            <box>
+              <size>50 50 0.1</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="ground_visual">
+          <geometry>
+            <box>
+              <size>50 50 0.1</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.3 0.3 0.3 1</ambient>
+            <diffuse>0.4 0.4 0.4 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Simple directional light (no model://sun) -->
+    <light name="sun_light" type="directional">
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.5 0.5 0.5 1</specular>
+      <direction>-0.5 0.5 -1</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+
+    <!-- iCub humanoid -->
+    <include>
+      <pose>0 0 1.0 0 0 0</pose>
+      <uri>file:///mnt/c/Users/madhu/OneDrive/Desktop/vision_25/Gazebo/icub-models/iCub/robots/iCubGazeboV2_5/model.urdf</uri>
+    </include>
+
+  </world>
+</sdf>

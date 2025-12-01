@@ -1,0 +1,123 @@
+<sdf version="1.7">
+  <world name="icub_world">
+
+    <!-- Gravity -->
+    <gravity>0 0 -9.81</gravity>
+
+    <!-- Simple ground plane -->
+    <model name="custom_ground">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="ground_link">
+        <collision name="ground_collision">
+          <geometry>
+            <box>
+              <size>50 50 0.1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="ground_visual">
+          <geometry>
+            <box>
+              <size>50 50 0.1</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.3 0.3 0.3 1</ambient>
+            <diffuse>0.4 0.4 0.4 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Simple directional light -->
+    <light name="sun_light" type="directional">
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.5 0.5 0.5 1</specular>
+      <direction>-0.5 0.5 -1</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+
+    <!-- iCub humanoid -->
+    <include>
+      <pose>0 0 1.0 0 0 0</pose>
+      <uri>file:///mnt/c/Users/madhu/OneDrive/Desktop/vision_25/Gazebo/icub-models/iCub/robots/iCubGazeboV2_5/model.urdf</uri>
+    </include>
+
+    <!-- === SIMPLE 1-JOINT DEMO MODEL WITH CONTROLLER === -->
+    <model name="joint_demo">
+      <pose>2 0 0.2 0 0 0</pose> <!-- place it to the side of iCub -->
+
+      <!-- Base link fixed to ground -->
+      <link name="base_link">
+        <inertial>
+          <mass>1.0</mass>
+          <inertia>
+            <ixx>0.01</ixx><iyy>0.01</iyy><izz>0.01</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <collision name="base_collision">
+          <geometry>
+            <box><size>0.2 0.2 0.05</size></box>
+          </geometry>
+        </collision>
+        <visual name="base_visual">
+          <geometry>
+            <box><size>0.2 0.2 0.05</size></box>
+          </geometry>
+        </visual>
+      </link>
+
+      <!-- Rotating link ("arm") -->
+      <link name="rotor">
+        <pose>0 0 0.1 0 0 0</pose>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.01</ixx><iyy>0.01</iyy><izz>0.01</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <collision name="rotor_collision">
+          <geometry>
+            <box><size>0.4 0.05 0.05</size></box>
+          </geometry>
+        </collision>
+        <visual name="rotor_visual">
+          <geometry>
+            <box><size>0.4 0.05 0.05</size></box>
+          </geometry>
+        </visual>
+      </link>
+
+      <!-- Revolute joint between base and rotor -->
+      <joint name="j1" type="revolute">
+        <parent>base_link</parent>
+        <child>rotor</child>
+        <pose>0 0 0.05 0 0 0</pose>
+        <axis>
+          <xyz>0 0 1</xyz> <!-- rotate around Z -->
+          <limit>
+            <lower>-1.57</lower> <!-- -90 deg -->
+            <upper> 1.57</upper> <!--  90 deg -->
+          </limit>
+        </axis>
+      </joint>
+
+      <!-- Joint position controller plugin -->
+      <plugin
+        filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+        <joint_name>j1</joint_name>
+        <topic>/joint_demo/j1/cmd_pos</topic>
+        <p_gain>5</p_gain>
+        <i_gain>0.1</i_gain>
+        <d_gain>0.01</d_gain>
+      </plugin>
+
+    </model>
+
+  </world>
+</sdf>
