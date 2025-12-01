@@ -111,7 +111,10 @@ You can add:
 
 Prepared for **Hackathon 2025 – Team Vision**  
 Team:
-
+M Durga Madhuri (MS/EFO5-XC) - DXA1KOR
+Roshima Babu (MS/EFO5-XC) - 
+Shilpa R K (MS/EFO5-XC) - SRN9KOR
+Yella Radhika (MS/EFO5-XC) - YEL2KOR
 
 Tech assistance: ChatGPT
 
